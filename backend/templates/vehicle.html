@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2>Vehicle Health Overview</h2>
+
+{% if result %}
+<p><b>Status:</b> {{ result.state }}</p>
+<p><b>Final Risk:</b> {{ result.final_risk }}%</p>
+
+<h3>Live Telemetry Snapshot</h3>
+<ul>
+    <li>Air Temp: {{ input_data["Air temperature [K]"] }}</li>
+    <li>Process Temp: {{ input_data["Process temperature [K]"] }}</li>
+    <li>RPM: {{ input_data["Rotational speed [rpm]"] }}</li>
+    <li>Torque: {{ input_data["Torque [Nm]"] }}</li>
+    <li>Tool Wear: {{ input_data["Tool wear [min]"] }}</li>
+</ul>
+{% else %}
+<p>No prediction has been run yet.</p>
+{% endif %}
+
+{% endblock %}

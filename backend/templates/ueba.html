@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>UEBA Audit Log</h2>
+
+    {% if logs %}
+    <table>
+        <tr>
+            <th>Timestamp</th>
+            <th>Action</th>
+            <th>State</th>
+        </tr>
+        {% for row in logs %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>No agent actions logged yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

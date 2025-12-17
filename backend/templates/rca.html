@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>Manufacturing Root Cause Analysis</h2>
+
+    {% if result and result.state == "EMERGENCY" %}
+        <p><b>Failure Drivers Identified:</b></p>
+        <ul>
+            <li>Thermal overload beyond safety threshold</li>
+            <li>Torque stress exceeding rated capacity</li>
+            <li>Excessive tool wear</li>
+        </ul>
+
+        <h3>CAPA Actions</h3>
+        <ul>
+            <li>Immediate maintenance dispatch</li>
+            <li>Inspect cooling and lubrication subsystems</li>
+            <li>Replace tooling and recalibrate process</li>
+            <li>Feedback loop to manufacturing QA</li>
+        </ul>
+    {% else %}
+        <p>
+            No RCA generated.<br>
+            <b>Reason:</b> RCA is only triggered for <b>EMERGENCY</b> failures.
+        </p>
+    {% endif %}
+</div>
+
+{% endblock %}

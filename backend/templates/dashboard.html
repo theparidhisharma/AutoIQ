@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="grid">
+
+    <!-- LEFT: Telemetry Input -->
+    <div class="card">
+        <h2>Vehicle Telemetry Ingestion</h2>
+        <p class="subtext">Live sensor snapshot from connected vehicle</p>
+
+        <form method="post">
+            <label>Air Temperature (K)</label>
+            <input name="Air temperature [K]" required>
+
+            <label>Process Temperature (K)</label>
+            <input name="Process temperature [K]" required>
+
+            <label>Rotational Speed (RPM)</label>
+            <input name="Rotational speed [rpm]" required>
+
+            <label>Torque (Nm)</label>
+            <input name="Torque [Nm]" required>
+
+            <label>Tool Wear (min)</label>
+            <input name="Tool wear [min]" required>
+
+            <button type="submit">Run Risk Intelligence</button>
+        </form>
+    </div>
+
+    <!-- RIGHT: Decision Intelligence -->
+    <div class="card highlight">
+        <h2>System Risk Intelligence</h2>
+        <p class="subtext">Agent-driven operational decision</p>
+
+        {% if result %}
+            <div class="status">
+                <span class="badge {{ result.state }}">{{ result.state }}</span>
+            </div>
+
+            <div class="risk-score">
+                {{ result.final_risk }}<span>%</span>
+            </div>
+            <p class="risk-label">Composite Failure Risk</p>
+
+            <div class="breakdown">
+                <div>
+                    <h4>ML Risk</h4>
+                    <p>{{ result.ml_risk }}%</p>
+                </div>
+                <div>
+                    <h4>Rule Risk</h4>
+                    <p>{{ result.rule_risk }}%</p>
+                </div>
+            </div>
+
+            <div class="dispatch">
+                {% if result.state == "EMERGENCY" %}
+                    🚨 <b>Emergency Dispatch Activated</b><br>
+                    Vehicle flagged for immediate intervention.  
+                    Manufacturing feedback loop triggered.
+                {% elif result.state == "CRITICAL" %}
+                    ⚠️ <b>Critical Condition Detected</b><br>
+                    Schedule service within 24 hours.
+                {% elif result.state == "DEGRADED" %}
+                    🟡 <b>Performance Degradation Observed</b><br>
+                    Preventive maintenance advised.
+                {% else %}
+                    ✅ <b>System Operating Normally</b><br>
+                    No action required.
+                {% endif %}
+            </div>
+
+        {% else %}
+            <p class="empty">
+                Awaiting telemetry input.<br>
+                Submit vehicle data to activate AutoIQ.
+            </p>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>Vehicle Health Overview</h2>
+
+    {% if result %}
+        <p>Status: <span class="badge {{ result.state }}">{{ result.state }}</span></p>
+        <p>Final Risk: {{ result.final_risk }}%</p>
+
+        <h3>Latest Telemetry</h3>
+        <ul>
+            <li>Air Temp: {{ input_data["Air temperature [K]"] }} K</li>
+            <li>Process Temp: {{ input_data["Process temperature [K]"] }} K</li>
+            <li>RPM: {{ input_data["Rotational speed [rpm]"] }}</li>
+            <li>Torque: {{ input_data["Torque [Nm]"] }} Nm</li>
+            <li>Tool Wear: {{ input_data["Tool wear [min]"] }} min</li>
+        </ul>
+    {% else %}
+        <p>No prediction run yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

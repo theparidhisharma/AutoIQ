@@ -1,0 +1,171 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f5f7fb;
+    color: #333;
+}
+
+.header {
+    background: #0b3c5d;
+    color: white;
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    margin: 0;
+}
+
+.header nav a {
+    color: white;
+    margin-left: 20px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.card {
+    background: white;
+    padding: 24px;
+    margin-bottom: 24px;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+button {
+    background: #0b3c5d;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 14px;
+    font-weight: bold;
+}
+
+.EMERGENCY { background: #c0392b; color: white; }
+.CRITICAL  { background: #e67e22; color: white; }
+.DEGRADED  { background: #f1c40f; color: black; }
+.NORMAL    { background: #2ecc71; color: white; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.subtext {
+    color: #777;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 10px;
+    display: block;
+}
+
+.highlight {
+    border-left: 6px solid #0b3c5d;
+}
+
+.status {
+    margin: 15px 0;
+}
+
+.risk-score {
+    font-size: 64px;
+    font-weight: 700;
+    color: #0b3c5d;
+    line-height: 1;
+}
+
+.risk-score span {
+    font-size: 24px;
+}
+
+.risk-label {
+    margin-bottom: 20px;
+    color: #555;
+}
+
+.breakdown {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.breakdown div {
+    background: #f5f7fb;
+    padding: 12px;
+    border-radius: 6px;
+    width: 48%;
+    text-align: center;
+}
+
+.breakdown h4 {
+    margin: 0;
+    font-size: 13px;
+    color: #777;
+}
+
+.dispatch {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.empty {
+    color: #999;
+    text-align: center;
+    margin-top: 60px;
+}
+.dispatch {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 6px;
+    background: #f8f9fa;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+hr {
+    margin: 20px 0;
+}
