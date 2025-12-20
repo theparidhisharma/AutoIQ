@@ -234,37 +234,39 @@ export default function App() {
     }, ...prev].slice(0, 50));
   }, []);
   const runDiagnostics = async () => {
-    setIsLoading(true);
-    addLog('Master', `Initiating Multi-Agent Session for Unit IQ-942...`);
-    
-    try {
-      // 1. UEBA Pre-audit
-      addLog('UEBA', `Verifying telemetry source integrity... PASS.`);
-      
-      // 2. Risk Inference
-      const res = await fetch("http://127.0.0.1:5000/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(telemetry)
-      });
+  setIsLoading(true);
+  addLog("Master", "Initiating agentic diagnostics...");
 
-      const data = await res.json();
-      const riskResult = {
-        finalRisk: data.final_risk,
-        mlRisk: data.ml_risk,
-        ruleRisk: data.rule_risk,
-        band: data.state,
-        decisionTrace: [
-          "Telemetry ingested",
-          "ML inference executed",
-          "Rule evaluation completed",
-          "Risk fusion finalized",
-          `System state: ${data.state}`
-        ]
-      };
-      
-      setAnalysis(riskResult);
-      addLog('Master', `Risk Fusion Engine stabilized at ${riskResult.finalRisk.toFixed(2)}%.`);
+  try {
+    const res = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(telemetry)
+    });
+
+    const data = await res.json();
+
+    setAnalysis({
+      finalRisk: data.final_risk,
+      mlRisk: data.ml_risk,
+      ruleRisk: data.rule_risk,
+      band: data.state,
+      decisionTrace: [
+        "Telemetry ingested",
+        "ML inference executed",
+        "Rule-based thresholds evaluated",
+        "Risk fusion completed",
+        `System state: ${data.state}`
+      ]
+    });
+
+    addLog("Master", `Risk computed: ${data.final_risk}% (${data.state})`);
+  } catch (e) {
+    addLog("Master", "BACKEND UNREACHABLE — SAFE MODE", "error");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
       // 3. UEBA Log
       const audit: UEBAAudit = {
@@ -296,6 +298,36 @@ export default function App() {
     const num = parseFloat(val) || 0;
     setTelemetry(prev => ({ ...prev, [field]: num }));
   };
+
+  useEffect(() => {
+  if (!analysis) return;
+
+  fetch("/api/ueba")
+    .then(res => res.json())
+    .then(data => {
+      setLogs(
+        data.map((item: any, i: number) => ({
+          id: String(i),
+          agent: "UEBA",
+          message: item.action,
+          timestamp: item.timestamp,
+          level: "info"
+        }))
+      );
+    })
+    .catch(() => {});
+}, [analysis]);
+
+useEffect(() => {
+  if (analysis?.band === "EMERGENCY") {
+    fetch("/api/rca")
+      .then(res => res.json())
+      .then(setRca);
+  } else {
+    setRca(null);
+  }
+}, [analysis]);
+
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-[#020617] text-slate-100">

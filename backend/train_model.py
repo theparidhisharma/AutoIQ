@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import joblib
 import os
 
@@ -7,6 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix, classification_report, roc_auc_score
 
 MODEL_DIR = "models"
 os.makedirs(MODEL_DIR, exist_ok=True)
@@ -30,8 +30,13 @@ def train():
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    X_train, _, y_train, _ = train_test_split(
-        X_scaled, y, test_size=0.2, stratify=y, random_state=42
+    # KEEP test data — do not discard it
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_scaled,
+        y,
+        test_size=0.2,
+        stratify=y,
+        random_state=42
     )
 
     base_model = RandomForestClassifier(
@@ -47,8 +52,27 @@ def train():
         cv=5
     )
 
+    # TRAIN FIRST
     calibrated_model.fit(X_train, y_train)
 
+    # EVALUATE AFTER TRAINING
+    y_prob = calibrated_model.predict_proba(X_test)[:, 1]
+
+    threshold = 0.7
+    y_pred = (y_prob >= threshold).astype(int)
+
+    print("=== AutoIQ Model Evaluation ===")
+
+    print("\nConfusion Matrix:")
+    print(confusion_matrix(y_test, y_pred))
+
+    print("\nClassification Report:")
+    print(classification_report(y_test, y_pred))
+
+    print("\nROC-AUC Score:")
+    print(roc_auc_score(y_test, y_prob))
+
+    # SAVE MODELS
     joblib.dump(calibrated_model, os.path.join(MODEL_DIR, "failure_model.pkl"))
     joblib.dump(scaler, os.path.join(MODEL_DIR, "scaler.pkl"))
 
