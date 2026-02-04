@@ -344,9 +344,9 @@ MIT License — Use this to save factories from downtime!
 
 <div align="center">
 
-**Built with 🔥 by [Team Name]**
+**Built with 🔥 by [Paridhi Sharma]**
 
-[GitHub](your-repo) • [Demo](your-demo) • [DevPost](your-devpost)
 
 </div>
+
 
