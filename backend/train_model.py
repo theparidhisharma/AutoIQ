@@ -16,13 +16,18 @@ FEATURES = [
     "Process temperature [K]",
     "Rotational speed [rpm]",
     "Torque [Nm]",
-    "Tool wear [min]"
+    "Tool wear [min]",
+    "Type"
 ]
 
 TARGET = "Machine failure"
 
 def train():
-    df = pd.read_csv("raw_dataset_sample.csv")
+    df = pd.read_csv("AI4I_dataset.csv")
+    print(df.columns)
+
+    df = df.drop(["UDI", "Product ID"], axis=1, errors="ignore")
+    df["Type"] = df["Type"].map({"L":0, "M":1, "H":2})
 
     X = df[FEATURES]
     y = df[TARGET]
@@ -40,9 +45,9 @@ def train():
     )
 
     base_model = RandomForestClassifier(
-        n_estimators=300,
+        n_estimators=200,
         max_depth=10,
-        class_weight="balanced",
+        class_weight={0: 1, 1: 6},
         random_state=42
     )
 
@@ -58,7 +63,7 @@ def train():
     # EVALUATE AFTER TRAINING
     y_prob = calibrated_model.predict_proba(X_test)[:, 1]
 
-    threshold = 0.7
+    threshold = 0.30
     y_pred = (y_prob >= threshold).astype(int)
 
     print("=== AutoIQ Model Evaluation ===")
