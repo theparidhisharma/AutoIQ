@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoIQ | Enterprise Operational Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: {
+                        ey: { yellow: '#FFE600', black: '#000000', grey: '#2E2E2E', light: '#F4F4F4', border: '#E0E0E0' },
+                        ent: { 950: '#050505', 900: '#0a0a0a', 800: '#121212', accent: '#14b8a6' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .glass { background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); }
+        .sidebar-link.active { background: #FFE600; color: #000000; font-weight: 800; }
+        .tech-tab-btn.active { color: #000000; border-bottom: 3px solid #FFE600; font-weight: 800; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
+        .view-section { display: none; height: 100%; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; }
+        .view-section.active { display: flex; flex-direction: column; opacity: 1; transform: translateY(0); }
+        .node-active { stroke: #FFE600; filter: drop-shadow(0 0 8px #FFE600); transition: all 0.6s; }
+        .step-line { stroke-dasharray: 1200; stroke-dashoffset: 1200; transition: stroke-dashoffset 2.5s ease-in-out; }
+        .step-line.active { stroke-dashoffset: 0; }
+        @keyframes scan { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
+        .scanner::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: #FFE600; box-shadow: 0 0 15px #FFE600; animation: scan 3s linear infinite; }
+        #story-guide { transform: translate(-50%, 50px); opacity: 0; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #story-guide.active { transform: translate(-50%, 0); opacity: 1; }
+        .ey-card { background: #FFFFFF; border: 1px solid #E0E0E0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .arch-node { position: relative; }
+        .arch-node:hover .arch-tooltip { opacity: 1; pointer-events: auto; }
+        .arch-tooltip { opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 50; }
+    </style>
+</head>
+<body class="bg-ent-950 text-slate-300 font-sans selection:bg-yellow-500/30 overflow-x-hidden">
+
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="relative z-10 bg-ent-950">
+        <nav class="fixed top-0 w-full z-50 glass py-5 px-10 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-ey-yellow rounded flex items-center justify-center font-bold text-black">A</div>
+                <span class="text-xl font-bold tracking-tight text-white uppercase">AutoIQ</span>
+            </div>
+            <div class="hidden md:flex gap-10 text-[10px] font-mono tracking-widest text-slate-500 uppercase">
+                <a href="#problem" class="hover:text-white transition-colors">Problem</a>
+                <a href="#orchestration" class="hover:text-white transition-colors">Orchestration</a>
+                <a href="#governance" class="hover:text-white transition-colors">Governance</a>
+                <a href="#metrics" class="hover:text-white transition-colors">Impact</a>
+            </div>
+            <button onclick="document.getElementById('entry').scrollIntoView()" class="px-7 py-2.5 bg-ey-yellow text-black text-xs font-bold rounded-full hover:bg-white transition-all uppercase tracking-widest">Enter Platform</button>
+        </nav>
+
+        <section class="min-h-screen flex flex-col justify-center items-center text-center px-6 relative">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-yellow-500/10 via-transparent to-transparent opacity-30"></div>
+            <span class="text-ey-yellow font-mono text-[10px] tracking-[0.5em] uppercase mb-8 reveal">AutoIQ Enterprise Intelligence</span>
+            <h1 class="text-7xl md:text-[9rem] font-bold text-white tracking-tighter mb-10 reveal">AutoIQ</h1>
+            <p class="text-xl md:text-3xl text-slate-400 max-w-4xl font-light mb-8 reveal leading-snug">
+                Operationalizing Predictive Intelligence Across the Automotive Lifecycle
+            </p>
+            <p class="text-lg text-slate-500 max-w-2xl mb-16 reveal">
+                From connected vehicle telemetry to fleet intervention — governed, orchestrated, and enterprise-ready.
+            </p>
+            <div class="reveal">
+                <button onclick="document.getElementById('problem').scrollIntoView()" class="px-10 py-5 glass border border-white/10 text-white font-bold rounded-full hover:bg-white/5 transition-all flex items-center gap-4">
+                    Explore Ecosystem <i data-lucide="arrow-down" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </section>
+
+        <section id="problem" class="py-40 px-10 border-t border-white/5">
+            <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-32 items-center">
+                <div class="reveal">
+                    <h2 class="text-6xl font-bold text-white leading-[1.1] mb-10">
+                        Efficiency Gaps <span class="text-slate-700">Cost Billions.</span>
+                    </h2>
+                    <p class="text-slate-400 text-lg leading-relaxed max-w-lg">
+                        Traditional maintenance is reactive. Signals are ignored, dispatch is manual, and feedback loops are broken.
+                    </p>
+                </div>
+                <div class="grid gap-6 reveal">
+                    <div class="p-8 glass rounded-2xl flex gap-8 items-start group">
+                        <div class="p-4 bg-yellow-500/10 rounded-xl text-ey-yellow group-hover:scale-110 transition-transform"><i data-lucide="zap" class="w-6 h-6"></i></div>
+                        <div>
+                            <h4 class="text-xl font-bold text-white mb-2">Unconnected Insights</h4>
+                            <p class="text-sm text-slate-500">Telemetry signals are trapped in monitoring tools instead of triggering orchestrated responses.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="orchestration" class="py-40 px-10 bg-ent-900 border-y border-white/5">
+            <div class="max-w-5xl mx-auto text-center mb-24 reveal">
+                <h2 class="text-5xl font-bold text-white mb-6">The Orchestration Model</h2>
+                <p class="text-slate-400 text-lg">Agentic logic bridging the gap between raw data and field resolution.</p>
+            </div>
+            <div class="max-w-6xl mx-auto reveal overflow-x-auto no-scrollbar">
+                <svg viewBox="0 0 1000 200" class="min-w-[900px] w-full h-auto">
+                    <path d="M50 100 L950 100" stroke="#262626" stroke-width="2" fill="none" class="step-line"></path>
+                    <g class="orch-node" data-index="0"><circle cx="50" cy="100" r="10" fill="#0a0a0a" stroke="#262626" stroke-width="2"></circle><text x="50" y="150" text-anchor="middle" fill="#94a3b8" font-size="10" class="font-mono uppercase tracking-widest">Signal</text></g>
+                    <g class="orch-node" data-index="1"><circle cx="230" cy="100" r="10" fill="#0a0a0a" stroke="#262626" stroke-width="2"></circle><text x="230" y="150" text-anchor="middle" fill="#94a3b8" font-size="10" class="font-mono uppercase tracking-widest">Inference</text></g>
+                    <g class="orch-node" data-index="2"><circle cx="410" cy="100" r="10" fill="#0a0a0a" stroke="#262626" stroke-width="2"></circle><text x="410" y="150" text-anchor="middle" fill="#94a3b8" font-size="10" class="font-mono uppercase tracking-widest">Agent</text></g>
+                    <g class="orch-node" data-index="3"><circle cx="590" cy="100" r="10" fill="#0a0a0a" stroke="#262626" stroke-width="2"></circle><text x="590" y="150" text-anchor="middle" fill="#94a3b8" font-size="10" class="font-mono uppercase tracking-widest">Human Loop</text></g>
+                    <g class="orch-node" data-index="4"><circle cx="770" cy="100" r="10" fill="#0a0a0a" stroke="#262626" stroke-width="2"></circle><text x="770" y="150" text-anchor="middle" fill="#94a3b8" font-size="10" class="font-mono uppercase tracking-widest">Field Dispatch</text></g>
+                    <g class="orch-node" data-index="5"><circle cx="950" cy="100" r="10" fill="#0a0a0a" stroke="#262626" stroke-width="2"></circle><text x="950" y="150" text-anchor="middle" fill="#94a3b8" font-size="10" class="font-mono uppercase tracking-widest">Outcome</text></g>
+                </svg>
+            </div>
+        </section>
+
+        <section id="governance" class="py-40 px-10 bg-ent-900 border-y border-white/5">
+            <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-32 items-center">
+                <div class="reveal">
+                    <h2 class="text-5xl font-bold text-white mb-10 leading-tight">Autonomous Where Safe.<br><span class="text-slate-700">Human Where Critical.</span></h2>
+                </div>
+                <div class="space-y-12 reveal">
+                    <div>
+                        <h4 class="text-xs font-mono text-ey-yellow uppercase tracking-[0.4em] mb-4">Governance Policy Layer</h4>
+                        <p class="text-slate-400 font-light text-lg">AutoIQ integrates rigorous confidence thresholds and human-in-the-loop overrides to ensure that agentic decisions align with enterprise safety standards.</p>
+                    </div>
+                    <div class="p-6 glass rounded-2xl border border-white/10 font-mono text-[10px] text-slate-500">
+                        MODEL_REGISTRY: PROD_v1.2.4 | ARCH: RANDOM_FOREST_ENSEMBLE | AUC: 0.86
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="metrics" class="py-40 px-10 bg-ent-950 border-t border-white/5">
+            <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 text-center reveal">
+                <div>
+                    <div class="text-6xl font-black text-ey-yellow mb-4 count" data-target="30">0</div>
+                    <p class="text-[10px] font-mono text-slate-500 uppercase tracking-[0.3em]">Reduction in breakdowns</p>
+                </div>
+                <div>
+                    <div class="text-6xl font-black text-blue-500 mb-4 count" data-target="35">0</div>
+                    <p class="text-[10px] font-mono text-slate-500 uppercase tracking-[0.3em]">Faster dispatch time</p>
+                </div>
+                <div>
+                    <div class="text-6xl font-black text-white mb-4 count" data-target="20">0</div>
+                    <p class="text-[10px] font-mono text-slate-500 uppercase tracking-[0.3em]">MTBF optimization</p>
+                </div>
+                <div>
+                    <div class="text-6xl font-black text-purple-500 mb-4">99%</div>
+                    <p class="text-[10px] font-mono text-slate-500 uppercase tracking-[0.3em]">Defect recurrence avoidance</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="entry" class="py-40 px-10 border-t border-white/5 bg-ent-950">
+            <div class="max-w-5xl mx-auto text-center reveal">
+                <h2 class="text-4xl font-bold text-white mb-16 uppercase tracking-[0.2em]">Select Deployment Environment</h2>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <button onclick="initApp('exec')" class="p-8 glass rounded-2xl hover:border-ey-yellow transition-all group">
+                        <i data-lucide="bar-chart-3" class="mx-auto mb-4 group-hover:text-ey-yellow transition-all"></i>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Executive</span>
+                    </button>
+                    <button onclick="initApp('fleet')" class="p-8 glass rounded-2xl hover:border-ey-yellow transition-all group">
+                        <i data-lucide="truck" class="mx-auto mb-4 group-hover:text-ey-yellow transition-all"></i>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Fleet Ops</span>
+                    </button>
+                    <button onclick="initApp('owner')" class="p-8 glass rounded-2xl hover:border-ey-yellow transition-all group">
+                        <i data-lucide="user" class="mx-auto mb-4 group-hover:text-ey-yellow transition-all"></i>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Owner App</span>
+                    </button>
+                    <button onclick="initApp('tech')" class="p-8 glass rounded-2xl hover:border-ey-yellow transition-all group">
+                        <i data-lucide="wrench" class="mx-auto mb-4 group-hover:text-ey-yellow transition-all"></i>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">Technician</span>
+                    </button>
+                    <button onclick="initApp('oem')" class="p-8 glass rounded-2xl hover:border-ey-yellow transition-all group">
+                        <i data-lucide="factory" class="mx-auto mb-4 group-hover:text-ey-yellow transition-all"></i>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">OEM / Mfg</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <footer class="py-20 text-center border-t border-white/5 text-[10px] font-mono text-slate-700 tracking-[0.4em] uppercase">
+            &copy; 2026 AutoIQ Enterprise. Guided by Predictive Intelligence.
+        </footer>
+    </div>
+
+    <!-- MAIN DASHBOARD (EY TECHATHON THEME) -->
+    <div id="main-app" class="hidden fixed inset-0 flex overflow-hidden bg-ey-light text-ey-black">
+        
+        <div id="story-guide" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] w-[95%] max-w-4xl hidden">
+            <div class="bg-black border-t-8 border-ey-yellow p-8 rounded-2xl shadow-2xl flex items-center justify-between">
+                <div class="flex items-center gap-6">
+                    <div id="story-step-num" class="w-14 h-14 rounded-full bg-ey-yellow text-black font-black flex items-center justify-center text-2xl shadow-lg">1</div>
+                    <div class="max-w-md">
+                        <p id="story-title" class="text-[11px] font-black text-ey-yellow uppercase tracking-[0.2em] mb-1">Alert Ingested</p>
+                        <p id="story-desc" class="text-sm text-white font-medium">Telemetry spike detected. Transitioning to Fleet Ops for agent review.</p>
+                    </div>
+                </div>
+                <button id="story-next-btn" class="px-8 py-4 bg-ey-yellow text-black text-[11px] font-black rounded-xl hover:bg-white transition-all uppercase tracking-widest">Next Phase</button>
+            </div>
+        </div>
+
+        <aside class="w-72 bg-black flex flex-col z-20">
+            <div class="p-8 flex items-center gap-4 border-b border-white/10">
+                <div class="w-8 h-8 bg-ey-yellow rounded flex items-center justify-center font-black text-black text-sm">A</div>
+                <span class="font-black text-white tracking-widest text-lg uppercase">AutoIQ</span>
+            </div>
+            
+            <nav class="flex-grow py-8 overflow-y-auto">
+                <button onclick="switchRole('exec')" class="sidebar-link w-full px-8 py-5 text-left text-[11px] font-bold uppercase tracking-widest flex items-center gap-4 text-slate-400 transition-all" id="nav-exec">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Executive
+                </button>
+                <button onclick="switchRole('fleet')" class="sidebar-link w-full px-8 py-5 text-left text-[11px] font-bold uppercase tracking-widest flex items-center gap-4 text-slate-400 transition-all" id="nav-fleet">
+                    <i data-lucide="truck" class="w-4 h-4"></i> Fleet Operations
+                </button>
+                <button onclick="switchRole('tech')" class="sidebar-link w-full px-8 py-5 text-left text-[11px] font-bold uppercase tracking-widest flex items-center gap-4 text-slate-400 transition-all" id="nav-tech">
+                    <i data-lucide="wrench" class="w-4 h-4"></i> Technician Portal
+                </button>
+                <button onclick="switchRole('oem')" class="sidebar-link w-full px-8 py-5 text-left text-[11px] font-bold uppercase tracking-widest flex items-center gap-4 text-slate-400 transition-all" id="nav-oem">
+                    <i data-lucide="factory" class="w-4 h-4"></i> OEM / MLOps
+                </button>
+                <button onclick="switchRole('owner')" class="sidebar-link w-full px-8 py-5 text-left text-[11px] font-bold uppercase tracking-widest flex items-center gap-4 text-slate-400 transition-all" id="nav-owner">
+                    <i data-lucide="user" class="w-4 h-4"></i> Owner App
+                </button>
+                <button onclick="switchRole('arch')" class="sidebar-link w-full px-8 py-5 text-left text-[11px] font-bold uppercase tracking-widest flex items-center gap-4 text-slate-400 transition-all" id="nav-arch">
+                    <i data-lucide="database" class="w-4 h-4"></i> System Architecture
+                </button>
+
+                <div class="mt-12 px-8">
+                    <button onclick="runGlobalSimulation()" class="w-full bg-ey-yellow text-black py-4 rounded-xl text-[10px] font-black hover:bg-white transition-all flex items-center justify-center gap-3 uppercase tracking-widest shadow-lg">
+                        <i data-lucide="play" class="w-4 h-4"></i> Run Scenario
+                    </button>
+                </div>
+            </nav>
+
+            <div class="p-8 border-t border-white/10">
+                <button onclick="location.reload()" class="w-full text-left text-[10px] font-bold text-slate-600 hover:text-white uppercase tracking-widest transition-colors">Exit Operational Mode</button>
+            </div>
+        </aside>
+
+        <main class="flex-grow flex flex-col relative overflow-hidden">
+            <header class="h-20 border-b border-ey-border bg-white flex items-center justify-between px-10 sticky top-0 z-10 shadow-sm">
+                <div class="flex items-center gap-8">
+                    <h2 id="view-title" class="text-[11px] font-black text-black uppercase tracking-[0.3em]">Executive View</h2>
+                    <div id="simulation-status" class="hidden px-4 py-1.5 bg-black text-ey-yellow rounded-lg text-[9px] font-black uppercase animate-pulse">Live Narrative Simulation</div>
+                </div>
+                <div class="flex items-center gap-10">
+                    <div class="text-right flex items-center gap-4">
+                        <div class="flex flex-col">
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Backend Status</p>
+                            <div class="flex items-center gap-2">
+                                <div id="backend-status-indicator" class="w-2 h-2 rounded-full bg-green-500"></div>
+                                <p id="backend-status-text" class="text-[10px] text-black font-black uppercase">Connected</p>
+                            </div>
+                        </div>
+                        <div class="w-px h-8 bg-ey-border"></div>
+                        <div class="flex flex-col">
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Inference Latency</p>
+                            <div class="flex items-center gap-2">
+                                <div id="latency-indicator" class="w-2 h-2 rounded-full bg-green-500"></div>
+                                <p id="latency-val" class="text-[10px] text-black font-black font-mono">34 ms</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-6 border-l border-ey-border pl-10">
+                        <i data-lucide="bell" class="w-5 h-5 text-slate-400 hover:text-black cursor-pointer transition-colors"></i>
+                        <i data-lucide="settings" class="w-5 h-5 text-slate-400 hover:text-black cursor-pointer transition-colors"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="flex-grow overflow-y-auto p-12 bg-ey-light" id="content-scroll">
+                
+                <!-- VIEW: EXECUTIVE -->
+                <section id="view-exec" class="view-section active space-y-12">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        <div class="ey-card p-10 rounded-[1.5rem] border-l-8 border-l-black relative overflow-hidden">
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">Fleet ROI (Avoided)</p>
+                            <h3 id="stat-roi" class="text-5xl font-black text-black tracking-tighter">$4.2M</h3>
+                            <p class="text-[8px] text-slate-400 mt-4 uppercase tracking-widest font-bold">Rolling 6-month historical fleet analysis (320 assets)</p>
+                        </div>
+                        <div class="ey-card p-10 rounded-[1.5rem]">
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">Operating Cost</p>
+                            <h3 id="stat-cost" class="text-5xl font-black text-black tracking-tighter">$0.8M</h3>
+                        </div>
+                        <div class="ey-card p-10 rounded-[1.5rem] border-l-8 border-l-ey-yellow">
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">Net Strategic Gain</p>
+                            <h3 id="stat-net" class="text-5xl font-black text-black tracking-tighter">$3.4M</h3>
+                        </div>
+                        <div class="ey-card p-10 rounded-[1.5rem]">
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">Inference stability</p>
+                            <h3 id="stat-inference-stability" class="text-5xl font-black text-black tracking-tighter">0.98</h3>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                        <div class="md:col-span-2 ey-card p-12 rounded-[2rem]">
+                            <h4 class="text-[12px] font-black text-slate-400 uppercase mb-12 tracking-[0.2em]">ROI Convergence Velocity</h4>
+                            <div class="h-80"><canvas id="chart-exec-roi"></canvas></div>
+                        </div>
+                        <div class="ey-card p-10 bg-black text-white rounded-[2rem] border-0">
+                            <h4 class="text-[11px] font-black text-ey-yellow uppercase tracking-widest mb-10">Strategic Impact</h4>
+                            <div class="space-y-8">
+                                <div class="p-6 bg-white/5 rounded-2xl border border-white/10">
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase mb-2">Cost Per Breakdown</p>
+                                    <p class="text-2xl font-black">$9,820</p>
+                                </div>
+                                <div class="p-6 bg-white/5 rounded-2xl border border-white/10">
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase mb-2">Prevented Failures</p>
+                                    <p id="stat-prevented-impact" class="text-2xl font-black">184</p>
+                                </div>
+                                <div class="pt-6 border-t border-white/10">
+                                    <p class="text-[9px] text-slate-500 font-bold uppercase leading-relaxed">System has successfully mitigated reactive expenditure through orchestrated early-intervention logic.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: FLEET OPERATIONS -->
+                <section id="view-fleet" class="view-section space-y-12">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                        <div class="lg:col-span-2 space-y-8">
+                            <div class="ey-card rounded-[2rem] overflow-hidden">
+                                <div class="p-8 border-b border-ey-border bg-slate-50 flex justify-between items-center">
+                                    <h4 class="text-[11px] font-black text-black uppercase tracking-widest">Active Orchestration Queue</h4>
+                                    <div class="px-4 py-1.5 bg-black text-ey-yellow rounded-lg text-[9px] font-black uppercase">Live Telemetry</div>
+                                </div>
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-ey-light text-slate-400 uppercase font-bold text-[10px]">
+                                        <tr>
+                                            <th class="p-8">Asset ID</th>
+                                            <th class="p-8">Fleet State</th>
+                                            <th class="p-8">Final Risk</th>
+                                            <th class="p-8 text-right">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fleet-alert-table" class="divide-y divide-ey-border font-bold"></tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="ey-card rounded-[2rem] overflow-hidden">
+                                <div class="p-8 border-b border-ey-border flex justify-between items-center bg-slate-50">
+                                    <h4 class="text-[11px] font-black text-black uppercase tracking-widest">Operational Event Logs</h4>
+                                    <i data-lucide="terminal" class="w-4 h-4 text-slate-400"></i>
+                                </div>
+                                <div id="log-container" class="max-h-64 overflow-y-auto font-mono text-[10px] p-6 bg-slate-50 space-y-2">
+                                    <div class="text-slate-400">[07:45:52] SYSTEM_BOOT initialized... SUCCESS</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-8">
+                            <div class="ey-card p-10 rounded-[2rem] border-t-8 border-ey-yellow">
+                                <h4 class="text-[11px] font-black text-black uppercase mb-10 tracking-widest">Agent Scheduler</h4>
+                                <div id="dispatch-card" class="hidden bg-yellow-50 p-8 rounded-3xl border border-ey-yellow/30 animate-pulse">
+                                    <div class="flex justify-between items-start mb-6">
+                                        <p class="text-[10px] font-black text-black uppercase">Weighted Match</p>
+                                        <i data-lucide="zap" class="w-5 h-5 text-black"></i>
+                                    </div>
+                                    <p class="text-sm text-slate-800 font-medium leading-relaxed mb-8 uppercase tracking-tight">Optimal handler R. Rodriguez identified within operational radius.</p>
+                                    <button onclick="approveDispatch()" class="w-full py-5 bg-black text-ey-yellow font-black rounded-xl text-[10px] uppercase tracking-widest shadow-xl hover:scale-[1.02] transition-all">Approve Dispatch</button>
+                                </div>
+                                <div id="dispatch-empty" class="text-center py-40 opacity-20">
+                                    <i data-lucide="shield-check" class="w-16 h-16 mx-auto mb-8"></i>
+                                    <p class="text-[11px] font-black uppercase tracking-widest text-slate-400">System Standing By</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: TECHNICIAN -->
+                <section id="view-tech" class="view-section space-y-10">
+                    <div class="flex gap-12 border-b-4 border-ey-border pb-4">
+                        <button onclick="switchTechTab('active')" class="tech-tab-btn active px-4 py-3 text-[12px] font-black uppercase tracking-widest transition-all" id="tech-tab-active-btn">Assignment</button>
+                        <button onclick="switchTechTab('inventory')" class="tech-tab-btn px-4 py-3 text-[12px] font-black uppercase tracking-widest transition-all" id="tech-tab-inventory-btn">Bay Inventory</button>
+                        <button onclick="switchTechTab('history')" class="tech-tab-btn px-4 py-3 text-[12px] font-black uppercase tracking-widest transition-all" id="tech-tab-history-btn">Field Logs</button>
+                    </div>
+
+                    <div id="tech-subview-active" class="tech-subview space-y-10">
+                        <div id="tech-job-active" class="hidden ey-card rounded-[3rem] overflow-hidden">
+                            <div class="scanner relative h-3 bg-ey-yellow"></div>
+                            <div class="p-16">
+                                <div class="flex justify-between items-start mb-16">
+                                    <div class="flex items-center gap-10">
+                                        <div class="p-8 bg-black text-ey-yellow rounded-[2rem] shadow-lg"><i data-lucide="wrench" class="w-12 h-12"></i></div>
+                                        <div>
+                                            <h3 class="text-4xl font-black text-black tracking-tighter uppercase">Job #940: Deployment</h3>
+                                            <p class="text-sm text-slate-400 mt-2 font-bold uppercase tracking-widest">Asset 2026-XJ9 • Bay 4 Allocation</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[11px] font-black text-slate-300 uppercase tracking-widest">SLA Window</p>
+                                        <p id="tech-sla-timer" class="text-5xl font-mono text-black font-black mt-2">02:44:12</p>
+                                    </div>
+                                </div>
+                                <div class="grid lg:grid-cols-3 gap-12 mb-16">
+                                    <div class="lg:col-span-2 ey-card p-12 bg-slate-50 rounded-[2.5rem] border-0 shadow-none">
+                                        <h4 class="text-[12px] font-black text-slate-400 uppercase tracking-[0.2em] mb-12 text-center">Backend Inference Breakdown</h4>
+                                        <div id="tech-risk-breakdown" class="grid grid-cols-3 gap-6 mb-12">
+                                            <!-- Populated by JS -->
+                                        </div>
+                                        <div class="space-y-6">
+                                            <p class="text-[11px] font-black text-black uppercase tracking-widest">Ground Truth Validation</p>
+                                            <div class="grid gap-4">
+                                                <label class="flex items-center gap-8 p-8 bg-white rounded-3xl border-4 border-transparent hover:border-ey-yellow transition-all cursor-pointer">
+                                                    <input type="checkbox" class="accent-black h-8 w-8">
+                                                    <span class="text-lg font-bold text-slate-700 uppercase">Inspect Drivetrain Coupling Module for micro-fractures</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="ey-card p-12 bg-black text-white rounded-[2.5rem] border-0 shadow-2xl">
+                                        <h4 class="text-[11px] font-black text-ey-yellow uppercase tracking-widest mb-10">Bay Allocation</h4>
+                                        <div class="p-8 border border-white/10 rounded-3xl mb-8">
+                                            <p class="text-[11px] font-bold text-slate-500 uppercase mb-3">Required component</p>
+                                            <p class="text-2xl font-black text-white uppercase tracking-tight">S-992-B Coupler</p>
+                                            <p class="text-[9px] text-ey-yellow mt-4 font-black uppercase tracking-widest">Allocated: Bay 4</p>
+                                        </div>
+                                        <div class="aspect-square bg-white/5 rounded-3xl border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-center p-8 group cursor-pointer hover:border-ey-yellow transition-all">
+                                            <i data-lucide="camera" class="w-10 h-10 text-slate-600 mb-4 group-hover:text-ey-yellow"></i>
+                                            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Capture Field Proof</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-10">
+                                    <button onclick="completeJob(true)" class="flex-grow py-10 bg-ey-yellow text-black font-black rounded-3xl text-xs uppercase tracking-[0.4em] shadow-3xl hover:bg-white hover:scale-[1.02] transition-all">Confirm Root Cause & Resolution</button>
+                                    <button onclick="completeJob(false)" class="flex-grow py-10 border-4 border-black text-black font-black rounded-3xl text-xs uppercase tracking-[0.4em] hover:bg-black hover:text-white transition-all">Report Misdiagnosis</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tech-job-empty" class="text-center py-56 ey-card rounded-[4rem] opacity-20 border-4 border-dashed border-ey-border">
+                            <i data-lucide="wrench" class="w-24 h-24 mx-auto mb-10 text-slate-400"></i>
+                            <p class="text-2xl font-black uppercase tracking-widest text-slate-400">Awaiting Assignment</p>
+                        </div>
+                    </div>
+                    
+                    <div id="tech-subview-inventory" class="tech-subview hidden">
+                        <div class="ey-card p-16 rounded-[3rem]">
+                            <h4 class="text-[12px] font-black text-black uppercase mb-16 tracking-[0.3em]">Central Bay Inventory Control</h4>
+                            <table class="w-full text-left font-bold">
+                                <thead class="bg-ey-light text-slate-400 uppercase text-[11px]"><tr><th class="p-10">SKU / ID</th><th class="p-10">Part nomenclature</th><th class="p-10">Allocation</th><th class="p-10">Status</th></tr></thead>
+                                <tbody class="divide-y divide-ey-border text-lg uppercase tracking-tight">
+                                    <tr><td class="p-10 font-mono text-slate-400">S-992-B</td><td class="p-10 text-black">Drivetrain Coupling Module</td><td class="p-10 text-black">12</td><td class="p-10 text-green-600 font-black">IN STOCK</td></tr>
+                                    <tr><td class="p-10 font-mono text-slate-400">B-PD-22</td><td class="p-10 text-black">Brake Assembly Unit</td><td class="p-10 text-black">2</td><td class="p-10 text-ey-yellow font-black">LOW STOCK</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div id="tech-subview-history" class="tech-subview hidden">
+                        <div class="ey-card p-16 rounded-[3rem]">
+                            <h4 class="text-[12px] font-black text-black uppercase mb-16 tracking-[0.3em]">Field History Logs</h4>
+                            <div class="space-y-6" id="tech-history-list">
+                                <div class="p-8 border-l-8 border-ey-yellow bg-slate-50 rounded-xl uppercase">
+                                    <p class="text-xs font-black text-slate-400 mb-2">2026-02-23 | JOB #938</p>
+                                    <p class="text-lg font-bold text-black">Coupling Integrity Verified</p>
+                                    <p class="text-sm text-slate-500 mt-2 font-medium">Ground truth matched model prediction. Replacement successful.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: OEM / MLOPS -->
+                <section id="view-oem" class="view-section space-y-12">
+                    <div class="grid lg:grid-cols-3 gap-12">
+                        <div class="lg:col-span-2 space-y-12">
+                            <div class="ey-card p-16 rounded-[3rem]">
+                                <h4 class="text-[12px] font-black text-slate-400 uppercase mb-4 tracking-widest">Model Recalibration Cycle (ROC-AUC)</h4>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase mb-12">Hybrid risk engine combining probabilistic ML with deterministic safety gating.</p>
+                                <div class="h-96"><canvas id="chart-oem-perf"></canvas></div>
+                            </div>
+                            
+                            <div class="ey-card p-10 rounded-3xl">
+                                <h4 class="text-[10px] font-black text-slate-400 uppercase mb-8 tracking-widest">Model Deployment Attributes</h4>
+                                <div class="grid grid-cols-2 gap-y-6">
+                                    <div><p class="text-[10px] text-slate-400 uppercase font-bold">Version</p><p class="text-sm font-black uppercase">v1.2.4-PROD</p></div>
+                                    <div><p class="text-[10px] text-slate-400 uppercase font-bold">Precision</p><p class="text-sm font-black text-green-600">0.92</p></div>
+                                    <div><p class="text-[10px] text-slate-400 uppercase font-bold">Recall</p><p class="text-sm font-black text-green-600">0.89</p></div>
+                                    <div><p class="text-[10px] text-slate-400 uppercase font-bold">F1 Score</p><p class="text-sm font-black text-green-600">0.90</p></div>
+                                    <div><p class="text-[10px] text-slate-400 uppercase font-bold">Dataset size</p><p class="text-sm font-black">Structured telemetry dataset (prototype scale)</p></div>
+                                    <div><p class="text-[10px] text-slate-400 uppercase font-bold">Last Trained</p><p class="text-sm font-black uppercase">14 Feb 2026</p></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-12">
+                            <div class="ey-card p-12 rounded-[3rem] border-t-8 border-ey-yellow">
+                                <h4 class="text-[11px] font-black text-slate-400 uppercase mb-8 tracking-widest">Deployment Archive</h4>
+                                <div class="space-y-6">
+                                    <div class="p-4 border-b border-ey-border">
+                                        <div class="flex justify-between text-[10px] font-black mb-1 uppercase text-black"><span>v1.2.4</span><span class="text-green-600">Active</span></div>
+                                        <div class="flex justify-between text-[9px] text-slate-400 font-bold uppercase"><span>2026-02-14</span><span>AUC: 0.97</span></div>
+                                    </div>
+                                    <div class="p-4 border-b border-ey-border opacity-50">
+                                        <div class="flex justify-between text-[10px] font-black mb-1 uppercase"><span>v1.2.3</span><span>Archived</span></div>
+                                        <div class="flex justify-between text-[9px] text-slate-400 font-bold uppercase"><span>2026-01-22</span><span>AUC: 0.94</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: OWNER (REFINED FOR VISIBILITY) -->
+                <section id="view-owner" class="view-section space-y-10 max-w-4xl mx-auto">
+                    <div class="ey-card p-12 md:p-16 rounded-[3rem] text-center relative overflow-hidden shadow-xl">
+                        <div class="absolute inset-0 bg-yellow-400/[0.03] blur-[100px]"></div>
+                        <p class="text-[11px] font-black text-slate-400 mb-12 uppercase tracking-[0.4em]">Vehicle Integrity Overview</p>
+                        
+                        <div class="flex flex-col md:flex-row items-center justify-around gap-12 mb-16">
+                            <div class="relative w-64 h-64 shrink-0">
+                                <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke="#F5F5F5" stroke-width="8"></circle>
+                                    <circle id="owner-circle" cx="50" cy="50" r="45" fill="none" stroke="#FFE600" stroke-width="8" stroke-dasharray="283" stroke-dashoffset="28" style="transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);"></circle>
+                                </svg>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span id="owner-health-val" class="text-7xl font-black text-black tracking-tighter">91</span>
+                                    <span class="text-[9px] font-black text-slate-400 uppercase mt-1 tracking-widest">Score</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex-grow w-full space-y-6 text-left">
+                                <div class="p-6 bg-slate-50 rounded-2xl border border-ey-border">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest font-bold">Financial Safeguard</p>
+                                    <p id="stat-cost-avoided" class="text-3xl font-black text-black tracking-tighter">$2,440.00</p>
+                                    <p class="text-[9px] text-green-600 font-bold mt-2 uppercase">Proactive Protection Guard Active</p>
+                                </div>
+                                <div class="p-6 bg-slate-50 rounded-2xl border border-ey-border">
+                                    <h4 class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest font-bold">Risk Trajectory</h4>
+                                    <div class="h-20 w-full"><canvas id="chart-owner-trend"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="owner-alert" class="hidden p-10 bg-black text-ey-yellow rounded-[2.5rem] text-left animate-bounce flex items-center gap-8 shadow-2xl mb-10">
+                            <div class="p-4 bg-ey-yellow text-black rounded-2xl"><i data-lucide="zap" class="w-8 h-8"></i></div>
+                            <div>
+                                <p class="text-sm font-black uppercase tracking-tight">Predictive Intervention Orchestrated</p>
+                                <p class="text-[10px] text-slate-400 font-bold mt-2 uppercase tracking-widest">Secured Bay 4 Slot • Tech R. Rodriguez</p>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8 border-2 border-ey-yellow rounded-[2.5rem] text-left bg-yellow-50/50 flex gap-6 items-start">
+                            <i data-lucide="info" class="w-6 h-6 text-black shrink-0"></i>
+                            <div>
+                                <p class="text-[11px] font-black text-black uppercase mb-2 tracking-widest font-bold">Strategic Recommendation</p>
+                                <p class="text-xs text-slate-600 font-bold leading-relaxed uppercase tracking-tight">Operational profile nominal. Anticipated routine inspection in 1,420 miles based on connected telemetry signatures.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: SYSTEM ARCHITECTURE -->
+                <section id="view-arch" class="view-section space-y-12">
+                    <div class="ey-card p-16 rounded-[3rem] bg-white relative">
+                        <h4 class="text-[12px] font-black text-black uppercase mb-20 tracking-[0.3em] text-center">Operational Topology</h4>
+                        <div class="flex flex-col items-center gap-20">
+                            <div class="flex gap-16">
+                                <div class="arch-node group w-48 p-8 border-4 border-black rounded-2xl flex flex-col items-center gap-4 bg-white hover:bg-black hover:text-white transition-all">
+                                    <i data-lucide="radio" class="w-8 h-8"></i>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">Telemetry</span>
+                                    <span class="text-[8px] font-mono text-green-500 font-bold">L: 12ms</span>
+                                    <div class="arch-tooltip absolute -top-24 left-0 w-64 p-4 bg-black text-white text-[9px] font-bold rounded-xl border border-ey-yellow uppercase tracking-widest">Edge-side ingestion of high-frequency vibration and thermal sensors via MQTT.</div>
+                                </div>
+                                <div class="flex items-center"><i data-lucide="arrow-right" class="text-slate-200"></i></div>
+                                <div class="arch-node group w-48 p-8 border-4 border-black rounded-2xl flex flex-col items-center gap-4 bg-white hover:bg-black hover:text-white transition-all">
+                                    <i data-lucide="share-2" class="w-8 h-8"></i>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">Event Layer</span>
+                                    <span class="text-[8px] font-mono text-green-500 font-bold uppercase">Scalable Stream-ready Architecture</span>
+                                    <div class="arch-tooltip absolute -top-24 left-0 w-64 p-4 bg-black text-white text-[9px] font-bold rounded-xl border border-ey-yellow uppercase tracking-widest leading-relaxed">High-performance data routing layer designed for sub-second telemetry propagation across fleet domains.</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-16">
+                                <div class="arch-node group w-48 p-8 border-4 border-black rounded-2xl flex flex-col items-center gap-4 bg-white hover:bg-black hover:text-white transition-all">
+                                    <i data-lucide="cpu" class="w-8 h-8"></i>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">Risk Engine</span>
+                                    <span class="text-[8px] font-mono text-yellow-500 font-bold">L: 42ms</span>
+                                    <div class="arch-tooltip absolute -top-24 left-0 w-64 p-4 bg-black text-white text-[9px] font-bold rounded-xl border border-ey-yellow uppercase tracking-widest leading-relaxed">Supervised ensemble classifier trained on structured vehicle telemetry (5 primary powertrain features). Outputs probabilistic anomaly score used for SLA gating.</div>
+                                </div>
+                                <div class="flex items-center"><i data-lucide="arrow-right" class="text-slate-200"></i></div>
+                                <div class="arch-node group w-48 p-8 border-4 border-ey-yellow rounded-2xl flex flex-col items-center gap-4 bg-black text-white shadow-2xl">
+                                    <i data-lucide="zap" class="w-8 h-8 text-ey-yellow"></i>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">Orchestrator</span>
+                                    <span class="text-[8px] font-mono text-green-500 font-bold">L: 15ms</span>
+                                    <div class="arch-tooltip absolute -top-24 left-0 w-64 p-4 bg-black text-white text-[9px] font-bold rounded-xl border border-ey-yellow uppercase tracking-widest leading-relaxed">Agentic logic handling dispatch thresholds, tech scoring, and SLA management.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const state = {
+            role: 'landing',
+            simulationActive: false,
+            backendConnected: true,
+            metrics: { 
+                roi: 4.2, savings: 1.8, health: 91, 
+                prevented: 184, operatingCost: 0.8, netGain: 3.4
+            },
+            latency: 34,
+            alerts: [
+                { id: '2026-XJ1', final_risk: 12, ml_risk: 8, rule_risk: 4, state: 'NORMAL', status: 'MONITORING' }
+            ],
+            auditLog: [
+                { ts: '10:14:02', entity: 'AGENT_ORCHESTRATOR', action: 'Route Optimized', id: 'D-922', conf: '92.4%' }
+            ],
+            charts: {},
+            storyStep: 0
+        };
+
+        let slaSeconds = 9852;
+        setInterval(() => {
+            const activeJob = state.alerts.find(a => a.status === 'TECH_ACTIVE');
+            if (activeJob) {
+                slaSeconds--;
+                const h = Math.floor(slaSeconds / 3600).toString().padStart(2, '0');
+                const m = Math.floor((slaSeconds % 3600) / 60).toString().padStart(2, '0');
+                const s = (slaSeconds % 60).toString().padStart(2, '0');
+                const timerEl = document.getElementById('tech-sla-timer');
+                if (timerEl) timerEl.innerText = `${h}:${m}:${s}`;
+            }
+        }, 1000);
+
+        function addLog(msg, type = "SYSTEM") {
+            const container = document.getElementById('log-container');
+            if (!container) return;
+            const log = document.createElement('div');
+            log.className = "flex gap-2 py-1 border-b border-white";
+            log.innerHTML = `<span class="text-slate-400 uppercase font-bold">[${new Date().toLocaleTimeString()}]</span> <span class="font-black text-black">${type}</span> <span class="uppercase font-bold">${msg}</span>`;
+            container.prepend(log);
+        }
+
+        function togglePanel(id) {
+            const body = document.getElementById(id);
+            if (body) body.classList.toggle('hidden');
+        }
+
+        function initApp(role) {
+            document.getElementById('landing-page').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            switchRole(role);
+        }
+
+        function switchRole(role) {
+            state.role = role;
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+            const target = document.getElementById(`view-${role}`);
+            if (target) target.classList.add('active');
+            const nav = document.getElementById(`nav-${role}`);
+            if(nav) nav.classList.add('active');
+            
+            const roleMap = {
+                exec: "Executive",
+                fleet: "Fleet",
+                tech: "Technician",
+                oem: "OEM / MLOps",
+                owner: "Owner",
+                arch: "Architecture"
+            };
+            const titleEl = document.getElementById('view-title');
+            if (titleEl) titleEl.innerText = (roleMap[role] || "Dashboard") + ' Operations Hub';
+            
+            initCharts();
+            renderUI();
+            if (window.lucide && lucide.createIcons) lucide.createIcons();
+        }
+
+        function switchTechTab(tab) {
+            document.querySelectorAll('.tech-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tech-subview').forEach(v => v.classList.add('hidden'));
+            const targetView = document.getElementById(`tech-subview-${tab}`);
+            const targetBtn = document.getElementById(`tech-tab-${tab}-btn`);
+            if (targetView) targetView.classList.remove('hidden');
+            if (targetBtn) targetBtn.classList.add('active');
+        }
+
+        function updateLatencyUI(latency) {
+            const lVal = document.getElementById('latency-val');
+            const lInd = document.getElementById('latency-indicator');
+            if (lVal) lVal.innerText = `${latency} ms`;
+            if (lInd) {
+                if (latency < 100) lInd.className = "w-2 h-2 rounded-full bg-green-500";
+                else if (latency < 300) lInd.className = "w-2 h-2 rounded-full bg-yellow-500";
+                else lInd.className = "w-2 h-2 rounded-full bg-red-500";
+            }
+        }
+
+        function renderUI() {
+            // Update Backend Status UI in Header
+            const bInd = document.getElementById('backend-status-indicator');
+            const bText = document.getElementById('backend-status-text');
+            if (bInd) bInd.className = `w-2 h-2 rounded-full ${state.backendConnected ? 'bg-green-500' : 'bg-red-500'}`;
+            if (bText) bText.innerText = state.backendConnected ? 'Connected' : 'Disconnected';
+
+            const fleetTable = document.getElementById('fleet-alert-table');
+            if(fleetTable) {
+                fleetTable.innerHTML = state.alerts.map(a => {
+                    let badgeClass = "bg-slate-100 text-slate-600";
+                    let urgencyClass = "";
+                    if (a.status === 'OFFLINE') {
+                        badgeClass = "bg-gray-200 text-gray-500";
+                    } else {
+                        if (a.state === 'EMERGENCY') {
+                            badgeClass = "bg-red-100 text-red-600";
+                            urgencyClass = "animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.4)]";
+                        }
+                        if (a.state === 'CRITICAL') {
+                            badgeClass = "bg-orange-100 text-orange-600";
+                            urgencyClass = "shadow-[0_0_8px_rgba(249,115,22,0.3)]";
+                        }
+                        if (a.state === 'DEGRADED') badgeClass = "bg-yellow-100 text-yellow-700";
+                        if (a.state === 'NORMAL') badgeClass = "bg-green-100 text-green-600";
+                    }
+
+                    return `
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="p-8 font-mono text-black font-black text-xl tracking-tighter">${a.id}</td>
+                            <td class="p-8"><span class="px-5 py-2 rounded-xl text-xs font-black uppercase ${badgeClass} ${urgencyClass}">${a.state}</span></td>
+                            <td class="p-8 text-black font-black text-2xl tracking-tighter">${a.final_risk}%</td>
+                            <td class="p-8 text-right font-black text-xs text-slate-400 uppercase tracking-widest">${a.status}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+            
+            const latestAlert = state.alerts[0];
+            if (latestAlert) {
+                state.metrics.health = 100 - latestAlert.final_risk;
+                const sInf = document.getElementById('stat-inference-stability');
+                if (sInf) sInf.innerText = (1 - (latestAlert.final_risk / 100)).toFixed(2);
+
+                const techRisk = document.getElementById('tech-risk-breakdown');
+                if (techRisk) {
+                    techRisk.innerHTML = `
+                        <div class="p-8 bg-white rounded-3xl shadow-sm border border-ey-border text-center group relative">
+                            <p class="text-[9px] font-black text-slate-400 uppercase mb-2">ML Risk</p>
+                            <div class="text-3xl font-black text-black">${latestAlert.ml_risk}%</div>
+                        </div>
+                        <div class="p-8 bg-white rounded-3xl shadow-sm border border-ey-border text-center">
+                            <p class="text-[9px] font-black text-slate-400 uppercase mb-2">Rule Risk</p>
+                            <div class="text-3xl font-black text-black">${latestAlert.rule_risk}%</div>
+                        </div>
+                        <div class="p-8 bg-black rounded-3xl shadow-sm border border-ey-yellow text-center group relative cursor-help shadow-lg" title="Final Risk = 0.65 × ML + 0.35 × Rule Threshold">
+                            <p class="text-[9px] font-black text-ey-yellow uppercase mb-2 flex items-center justify-center gap-1">Final Risk <i data-lucide="info" class="w-3 h-3"></i></p>
+                            <div class="text-3xl font-black text-white">${latestAlert.final_risk}%</div>
+                        </div>
+                    `;
+                    if (window.lucide) lucide.createIcons();
+                }
+            }
+
+            const auditTable = document.getElementById('audit-log-body');
+            if(auditTable) {
+                auditTable.innerHTML = state.auditLog.map(l => `
+                    <tr class="hover:bg-slate-50 transition-colors uppercase font-bold text-black">
+                        <td class="p-10 font-mono text-slate-400 text-lg tracking-tighter">${l.ts}</td>
+                        <td class="p-10 text-black font-black text-sm">${l.entity}</td>
+                        <td class="p-10 text-slate-500 text-sm tracking-widest">${l.action}</td>
+                        <td class="p-10 text-right text-black font-black text-2xl tracking-tighter font-mono">${l.conf}</td>
+                    </tr>
+                `).join('');
+            }
+            
+            const elRoi = document.getElementById('stat-roi');
+            const elNet = document.getElementById('stat-net');
+            const elPrev = document.getElementById('stat-prevented-impact');
+            const elHealth = document.getElementById('stat-health');
+            const elCost = document.getElementById('stat-cost');
+
+            if (elRoi) elRoi.innerText = `$${state.metrics.roi.toFixed(1)}M`;
+            if (elNet) elNet.innerText = `$${(state.metrics.roi - state.metrics.operatingCost).toFixed(1)}M`;
+            if (elPrev) elPrev.innerText = state.metrics.prevented;
+            if (elHealth) elHealth.innerText = state.metrics.health + '%';
+            if (elCost) elCost.innerText = `$${state.metrics.operatingCost.toFixed(1)}M`;
+
+            const circle = document.getElementById('owner-circle');
+            const circleVal = document.getElementById('owner-health-val');
+            if(circle) circle.style.strokeDashoffset = 283 - (283 * state.metrics.health / 100);
+            if(circleVal) circleVal.innerText = state.metrics.health;
+        }
+
+        const storySteps = [
+            {
+                title: "ANOMALY_INGESTION",
+                desc: "Invoking Flask inference endpoint with real-time telemetry payload...",
+                action: async () => {
+                    // Automotive Telemetry Mapping:
+                    // Ambient Temp → Air temperature [K]
+                    // Engine Block Temp → Process temperature [K]
+                    // Engine RPM → Rotational speed [rpm]
+                    // Engine Torque → Torque [Nm]
+                    // Wear Index → Tool wear [min]
+                    const payload = {
+                        "Air temperature [K]": 300.1,
+                        "Process temperature [K]": 310.2,
+                        "Rotational speed [rpm]": 1450,
+                        "Torque [Nm]": 45.2,
+                        "Tool wear [min]": 210
+                    };
+                    const start = performance.now();
+                    addLog("POST /api/analyze - Executing...", "NETWORK");
+
+                    try {
+                        const response = await fetch('http://localhost:5000/api/analyze', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        const data = await response.json();
+                        const measuredLatency = Math.round(performance.now() - start);
+                        state.latency = measuredLatency;
+                        state.backendConnected = true;
+                        updateLatencyUI(measuredLatency);
+                        
+                        state.alerts.unshift({
+                            id: '2026-XJ9', final_risk: data.final_risk, 
+                            ml_risk: data.ml_risk, rule_risk: data.rule_risk,
+                            state: data.state, status: 'AGENT_REVIEW'
+                        });
+
+                        addLog(`Backend Response: ${data.state} (Risk: ${data.final_risk}%)`, "ML_SVC");
+                        switchRole('fleet');
+                    } catch (e) {
+                        addLog("Connection Failed. Running Demo Fallback.", "ERROR");
+                        const measuredLatency = Math.round(performance.now() - start);
+                        state.latency = measuredLatency;
+                        state.backendConnected = false;
+                        updateLatencyUI(measuredLatency);
+                        state.alerts.unshift({ id: '2026-XJ9', final_risk: 88, ml_risk: 80, rule_risk: 8, state: 'EMERGENCY', status: 'OFFLINE' });
+                        switchRole('fleet');
+                    }
+                }
+            },
+            {
+                title: "DISPATCH_MATCHING",
+                desc: "Orchestrator identifies optimal Technician R. Rodriguez. Approve assignment.",
+                action: () => {
+                    const de = document.getElementById('dispatch-empty');
+                    const dc = document.getElementById('dispatch-card');
+                    if (de) de.classList.add('hidden');
+                    if (dc) dc.classList.remove('hidden');
+                }
+            },
+            {
+                title: "FIELD_DEPLOYMENT",
+                desc: "Rerouting to Tech Portal. Bay 4 synced with diagnostic requirements.",
+                action: () => {
+                    if (document.getElementById('dispatch-card')) document.getElementById('dispatch-card').classList.add('hidden');
+                    state.alerts.find(a => a.id === '2026-XJ9').status = 'TECH_ACTIVE';
+                    if (document.getElementById('owner-alert')) document.getElementById('owner-alert').classList.remove('hidden');
+                    switchRole('tech');
+                    switchTechTab('active');
+                    if (document.getElementById('tech-job-empty')) document.getElementById('tech-job-empty').classList.add('hidden');
+                    if (document.getElementById('tech-job-active')) document.getElementById('tech-job-active').classList.remove('hidden');
+                }
+            },
+            {
+                title: "RCA_VERIFICATION",
+                desc: "Result is being fed back to MLOps for model calibration.",
+                action: () => {
+                    state.metrics.health = 96; state.metrics.roi += 0.5; state.metrics.prevented += 12;
+                    state.auditLog.unshift({ ts: new Date().toLocaleTimeString(), entity: 'TECH_0940', action: 'RCA_VERIFIED', conf: '99.4%' });
+                    switchRole('oem');
+                }
+            },
+            {
+                title: "CYCLE_SUMMARY",
+                desc: "Lifecycle complete. ROI targets achieved in Executive View.",
+                action: () => { switchRole('exec'); }
+            }
+        ];
+
+        function runGlobalSimulation() {
+            if(state.simulationActive) return;
+            state.simulationActive = true;
+            state.storyStep = 0;
+            const ss = document.getElementById('simulation-status');
+            const sg = document.getElementById('story-guide');
+            if (ss) ss.classList.remove('hidden');
+            if (sg) { sg.classList.remove('hidden'); sg.classList.add('active'); }
+            progressStory();
+        }
+
+        async function progressStory() {
+            const step = storySteps[state.storyStep];
+            if(!step) return;
+            const sNum = document.getElementById('story-step-num');
+            const sTitle = document.getElementById('story-title');
+            const sDesc = document.getElementById('story-desc');
+            const sBtn = document.getElementById('story-next-btn');
+
+            if (sNum) sNum.innerText = state.storyStep + 1;
+            if (sTitle) sTitle.innerText = step.title;
+            if (sDesc) sDesc.innerText = step.desc;
+            
+            await step.action();
+            renderUI();
+            
+            if (sBtn) {
+                sBtn.onclick = () => {
+                    state.storyStep++;
+                    if(state.storyStep < storySteps.length) progressStory();
+                    else {
+                        const sGuide = document.getElementById('story-guide');
+                        if (sGuide) sGuide.classList.remove('active');
+                        state.simulationActive = false;
+                        const ss = document.getElementById('simulation-status');
+                        if (ss) ss.classList.add('hidden');
+                    }
+                };
+            }
+        }
+
+        function approveDispatch() { if(state.simulationActive && state.storyStep === 1) document.getElementById('story-next-btn').click(); }
+        function completeJob(v) { if(state.simulationActive && state.storyStep === 2) document.getElementById('story-next-btn').click(); }
+
+        function initCharts() {
+            const roiCtx = document.getElementById('chart-exec-roi');
+            if(roiCtx && !state.charts.roi) {
+                state.charts.roi = new Chart(roiCtx, {
+                    type: 'line',
+                    data: { labels: ['M1', 'M2', 'M3', 'M4', 'M5', 'M6'], datasets: [{ data: [2.1, 2.8, 3.2, 3.8, 4.1, 4.2], borderColor: '#000000', borderWidth: 8, tension: 0.4, pointRadius: 0, fill: true, backgroundColor: 'rgba(255, 230, 0, 0.05)' }] },
+                    options: { scales: { y: { display: false }, x: { grid: { color: '#F4F4F4' }, ticks: { font: { weight: 'bold' } } } }, plugins: { legend: { display: false } } }
+                });
+            }
+            const oemCtx = document.getElementById('chart-oem-perf');
+            if(oemCtx && !state.charts.oem) {
+                state.charts.oem = new Chart(oemCtx, {
+                    type: 'line',
+                    data: { labels: ['P1', 'P2', 'P3', 'P4', 'P5'], datasets: [{ data: [0.91, 0.94, 0.93, 0.96, 0.97], borderColor: '#FFE600', borderWidth: 10, tension: 0.2, pointRadius: 5, pointBackgroundColor: '#000' }] },
+                    options: { scales: { y: { display: false }, x: { grid: { color: '#F4F4F4' }, ticks: { font: { weight: 'bold' } } } }, plugins: { legend: { display: false } } }
+                });
+            }
+            const ownerCtx = document.getElementById('chart-owner-trend');
+            if(ownerCtx) {
+                if (state.charts.owner) state.charts.owner.destroy();
+                state.charts.owner = new Chart(ownerCtx, {
+                    type: 'line',
+                    data: { labels: ['W1', 'W2', 'W3', 'W4'], datasets: [{ data: [88, 92, 90, state.metrics.health], borderColor: '#000', borderWidth: 4, tension: 0.4, pointRadius: 0 }] },
+                    options: { scales: { y: { display: false }, x: { display: false } }, plugins: { legend: { display: false } }, maintainAspectRatio: false }
+                });
+            }
+        }
+
+        window.addEventListener('scroll', () => {
+            document.querySelectorAll('.reveal').forEach(r => {
+                if(r.getBoundingClientRect().top < window.innerHeight - 50) r.classList.add('active');
+            });
+            const sl = document.querySelector('.step-line');
+            if(sl && sl.getBoundingClientRect().top < window.innerHeight - 150) {
+                sl.classList.add('active');
+                document.querySelectorAll('.orch-node').forEach((n, i) => {
+                    setTimeout(() => {
+                        const circle = n.querySelector('circle');
+                        if (circle) circle.classList.add('node-active');
+                    }, i * 350);
+                });
+            }
+        });
+
+        const counterObs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting && entry.target.classList.contains('count')) {
+                    const target = parseInt(entry.target.getAttribute('data-target'));
+                    let count = 0;
+                    const interval = setInterval(() => {
+                        count++;
+                        entry.target.innerText = count + '%';
+                        if(count === target) clearInterval(interval);
+                    }, 50);
+                }
+            });
+        }, { threshold: 0.5 });
+        document.querySelectorAll('.count').forEach(c => counterObs.observe(c));
+
+        window.onload = () => {
+            if (window.lucide && lucide.createIcons) lucide.createIcons();
+            setTimeout(() => document.querySelectorAll('.reveal').forEach(r => { if(r.getBoundingClientRect().top < window.innerHeight) r.classList.add('active'); }), 100);
+            renderUI();
+        };
+    </script>
+</body>
+</html>
